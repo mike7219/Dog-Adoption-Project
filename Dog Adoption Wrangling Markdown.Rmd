@@ -1,0 +1,37 @@
+---
+title: "Adoption Data Set Wrangling"
+author: "Michael Martin"
+date: "December 24, 2019"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Original Adoption Data Set
+
+The original Data set was acquired from Data collected by Sonoma County on Animal Shelter Intake and Outcome. The original data set that you can reach in the link below. This data set has over 18,000 observations and 24 variables.  "https://data.sonomacounty.ca.gov/Government/Animal-Shelter-Intake-and-Outcome/924a-vesw/data"
+
+
+## Wrangling
+
+I am focusing my attention on Dog adoption. I removed filtered out all animals except for dogs. I also filtered out
+removing location, impound number, kennel number, animal ID because these are all unique identifiers all with Unique 
+Values. I also removed Count because every boservation was a count of 1, except for 1 observation that was most likely a data entry error. 
+
+## New Data Set
+
+```{r fig.height=3}
+dog_dataset_refined <- read.csv("G://dog.dataset.refined.csv", header = TRUE, na.strings = c("", " ", "NA"))
+summary(dog_dataset_refined)
+```
+
+This refined data set is boiled down to 15 Variables. A few of them I made like Age, Fixed.True, and Out.Of.County.Adopt. Most of the NA data I deleted because it caused NA in several other colums as well. 
+Cleaning up one cleaned up most of the NA. Even after wrangling and cleaning up the data, We still have 8132 Observations and 15 variables.
+```{r}
+
+```
+
+## Outliers 
+There aren't very many easily found outliers. I left them in the data because they did not make on noticeable change to the mean of the variables. 
