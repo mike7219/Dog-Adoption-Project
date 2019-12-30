@@ -1,0 +1,47 @@
+---
+title: "Dog Adoption Stats"
+author: "Michael Martin"
+date: "12/29/2019"
+output: html_document
+---
+## Interesting Notes
+```{r }
+adoption_df <- read.csv("E://dog.dataset.refined.csv", header = TRUE, na.strings = c("", " ", "NA"))
+
+summary(adoption_df)
+```
+
+
+Notice that in "Breeds" the most common is Pitbull, followed by Chihuahua, German Sheppards, and Pit Bull mixes. It is also very noteworthy that the majority of the animals in the shelter were not fixed. This could be due to that the majority of the dogs in the shelter were strays.  
+```{r include=FALSE}
+library(ggplot2)
+library(tidyverse)
+library(dplyr)
+```
+## Correlations
+
+```{r echo=FALSE}
+adoption_df %>%
+  ggplot(aes(Age.Years, Days.in.Shelter)) +
+  geom_point() + 
+  geom_jitter() +
+  geom_abline(color = "Red") +
+  xlim(0, 20) +
+  ylim(0, 100)
+```
+
+As expected you can see that as the Age goes up so does the Days in Shelter. Although it is not a steep slope they do show some correlation. There is also a correlation between Fixed.TRUE and Days.In.Shelter which is no very strong either but it is linear. 
+
+## Hypothesis
+
+There are a few hypotheses that I would like to test. 
+Null Hypothesis 1. PitBulls stay in shelters longer 
+Null Hypothesis 2. Elder dogs are less likely to be adopted
+Null Hypothesis 3. Not fixed Animals spend longer in shelters
+
+### Other Interesting Inquiries
+Males had a lower median and mean rate of Days in Shelter, and I would like to see this is the case. 
+
+What causes the extraordinarily long stays, Longest cast is over 700 days?
+
+Can the color of the animals negatively affect it's liklihood to be adopted. 
