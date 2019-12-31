@@ -1,0 +1,117 @@
+---
+title: "Milestone Report"
+author: "Michael Martin"
+date: "12/30/2019"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(tidyr)
+library(dbplyr)
+library(ggplot2)
+library(dplyr)
+library(tidyverse)
+library(lubridate)
+library(fastDummies)
+library(corrplot)
+
+adoption_df <- read.csv("G:\\FInal Project\\Dog Data Set Refined.csv")
+```
+
+## The Problem 
+
+There are thousands of dogs that end up as strays and in animal Shelters. Often times these animal shelters are overcrowded. This means sometimes they have to make a decision to Euthanize some to make room for others or refuse to help more innocent animals. 
+
+## My Original Goal 
+
+My interest was to try and find some of the reasons that dogs are or are not adopted. I wanted to dive into the data and see what affects dog adoptions to gain some insight on the problem. 
+
+
+## Data Set  
+
+#### Limits
+
+This data set is regarding Sonoma County Animal Shelters. This data set and the findings from this data would not be able to represnt the United States as whole, or even California as a whole. This data set also does not have any data regarding charactersitics of the people who do adopt the dogs. Therefore I would not be able to speculate or analyze the type of people that adopt but really what characteristics and circumstances of the dog itself. I would not be able to analyze on much of the circumstances that brought a person/family in to adopt. Nor does it tell us about the people/families that came in to adopt but did not. 
+
+#### Valuable Aspects 
+
+It does provide many characteristics on the dogs as well as Intake and Outcome conditions, dates, and circumstances. 
+The variables that interest me the most are the Breed, Size, Time Spent in the Shelter, The outcome, and Intake Type. 
+
+## Data Wrangling 
+#### Original Column Names 
+```{r echo=FALSE}
+animal_dataset_unrefined <- read.csv("G://Adopted Animal Data Set.csv", header = TRUE, na.strings = c("", " ", "NA"))
+
+
+
+names(animal_dataset_unrefined)
+```
+
+
+In my first set of data wrangling I limited the focus of my inquiry to dogs only.
+
+dog_dataset_unrefined <- animal_dataset_unrefined %>%
+  filter(Type == "DOG")
+
+
+variables that were redundant, or had no value to the questions I am exporing.I removed Count because it was not unique. I removed variables Name, Animal.ID, Kennel Number, and Impound number because these were all very unique to each dog and seemed to have no insight on the question I am analyzing. 
+
+```{r adoption_df}
+summary(adoption_df$Age.Years)
+```
+
+
+It did not include an Age characteristic so I made one of the Age that the dog was brought into the shelter. I also added a logical variable whether the animal was fixed or not. 
+
+```{r}
+mean(adoption_df$Fixed.TRUE)
+```
+
+### Missing Values 
+
+Certain variables had loads of missing data. I deleted the NA's in a few columns that has missing in data and it eliminated a lot of NA's from most other columns too. Even after doing this I still have over 8000 Observations. 
+
+#### Make Dummies 
+
+I made dummy variables character/ factor columns to be able to analyze these as well. 
+
+
+#### Current Data Column Names 
+```{r}
+names(adoption_df)
+```
+
+## Exploration 
+
+```{r}
+summary(adoption_df$Age.Years)
+```
+
+In my exploratory analysis completed so far I have found that the Average of Dogs is higer than the median. Indicating that that there are some elder dogs that are bring the average up higher than it otherwise would have beee. The Median age is 2.849 and the mean age is 4. 
+
+```{r}
+mean(adoption_df$Outcome.Type_ADOPTION)
+```
+
+The Percentage of Animals that are either returned to their owners or are adopted is about 
+70%. 
+
+```{r}
+stray_dogs <- filter(adoption_df, Intake.Type_STRAY == 1)
+mean(stray_dogs$Days.in.Shelter)
+
+confiscate_dogs <- filter(adoption_df, Intake.Type_CONFISCATE == 1)
+mean(confiscate_dogs$Days.in.Shelter)
+```
+
+Stray dogs, on average, spend less time in the shelter but are less often adopted or returned to owner than dogs that were confiscated. 
+
+#### Findings 
+
+Most of the exploratory analysis completed so far has made logical sense. For example the probable reason that Confiscated dogs spend more time in a shelter on average but get adopted or Returned to an owner is because the owner more than likely knows where their dog is being taken. Often times strays wander off and if they had previous owners then the previous owners are less likely to know exactly where they are at. 
+  One finding I am not sure how to explain yet is that Older Dogs, over 6, on average spend less time in a shelter than young dogs. It may be because pups haven't had their shots or been fixed yet. It is also possible that older dogs more than likely had owners that are looking for them.
+  
+## Approach 
+  Based on the information I have found, I am going to do a logsitical regression to try and determine which independent variables best predict whether a dog can be adopted or returned to their owner. I was considering doing a linear regression analysis to try what independent variables moat correlate to Days Spent in A shelter but it seems to be more direct to try and see what best predicts or explains why dogs get adopted or brought back home. 
