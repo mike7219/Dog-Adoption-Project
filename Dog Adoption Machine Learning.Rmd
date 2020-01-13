@@ -1,0 +1,99 @@
+---
+title: "Dog Adoption Machine Learning"
+author: "Michael Martin"
+date: "1/12/2020"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+library(readr)
+library(tidyverse)
+library(lubridate)
+library(janitor) #For cleaning up names
+library(DataExplorer)
+
+```
+
+### Application
+
+###### 
+The goal is to predict which independent variables predict a dog being adopted or returned to it's owner.
+The dependent variable "placed" is binary indicating whether a dog was either adopted or returned to it's owner or not. This makes it a supervised classification problem, so this is going to be tackled using Random Forest.
+
+
+```{r include=FALSE}
+dogs <- read_csv('G:\\dogs_data_set_final.csv') 
+dogs$X1 <- NULL
+dogs <- as.tibble(dogs)
+```
+
+
+```{r placed, echo=FALSE}
+summary(dogs$placed)
+```
+
+This shows that about 76% of dogs in animal shelters are either adopted or returned to their owner. 
+
+```{r include=FALSE}
+library(rpart.plot)
+library(caTools)
+library(rpart)
+library(randomForest)
+
+dogs_forest <- dogs %>%
+  select(age_years, days_in_shelter, intake_type, placed, intake_condition, out_of_county, fixed.true,
+         intimidating_breed_TRUE) %>%
+  mutate_if(is.character, as.factor)
+
+#Splitting Data Set into Train and Test data sets 
+
+split <- sample.split(dogs_forest$placed, SplitRatio = .7)
+dogs_forest_train = subset(dogs_forest, split == TRUE)
+
+dogs_forest_test = subset(dogs_forest, split == FALSE)
+
+library(randomForest)
+
+set.seed(120)
+dog_model_rf <- randomForest(as.factor(placed) ~ .,
+                             data = dogs_forest_train,
+                             ntree = 1000,
+                             mtry = 4,
+                             importance = TRUE,
+                             replace = FALSE)
+
+dog_model_rf
+```
+
+```{r include=FALSE}
+library(pROC)
+```
+
+
+
+```{r}
+
+varImpPlot(dog_model_rf, main = "") %>%
+  title(main="Variable Importance Random Forest")
+```
+
+#####   Shows the most useful variables for explaining "placed" is probably intake_condition, day_in_shelter, age_years, and intake_type
+
+```{r include=FALSE}
+library(verification)
+
+```
+
+```{r}
+outcome <- predict(dog_model_rf, dogs_forest_test)
+table(dogs_forest_test$placed, outcome, dnn=c("Actual", "Predicted"))
+
+```
+
+
+
+```{r}
+(489+2242)/(489+263+134+2242)
+```
+
+##### This model here states it has about 87% accuracy in the test data set.
