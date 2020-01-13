@@ -1,0 +1,116 @@
+---
+title: "Dog Adoption Presentation"
+author: "Michael Martin"
+date: "1/12/2020"
+output:
+  slidy_presentation: default
+  ioslides_presentation: default
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(include = FALSE)
+library(tidyverse)
+library(lubridate)
+library(janitor) #For cleaning up names
+library(DataExplorer)
+library(rmarkdown)
+library(dplyr)
+library(dbplyr)
+library(tidyverse)
+library(ggplot2)
+library(readr)
+
+```
+
+```{r include=FALSE}
+dogs <- read_csv("G:\\dogs_data_set_final.csv")
+```
+
+
+
+## Who doesn't love dogs?
+
+We all love dogs right? 
+
+Well then why are healthy dogs being Euthanized?
+
+About 75% of dogs in Shelters are adopted or Returned to their owner, 
+but what about the other 25%
+
+## THE OTHER 25%
+
+- Are Euthanized 
+
+- Are Transferred to other shelters with more room
+
+- Die due to untreated illness
+
+- or Are "Disposed" of 
+
+## What types of dogs are affected the most?
+
+- Older Dogs are less likely to be adopted
+- Dogs that are of "Intimidating Breeds" are euthanized more often in shelters
+- Dogs that have already been in a shelter for a long time 
+- Dogs with Ailments 
+
+
+##  Model Predictions 
+
+- This model uses just 4 Variables to predict whether a dog will be given a home or not. 
+
+- 1.) Health of the Dog when arriving to the ANimal Shelter
+- 2.) How long a dog already been at the shelter
+- 3.) How old the DOg is when they arrive at the Animal Shelter
+- 4.) How the Dog got there (Ex. Stray, Confiscate, ... etc)
+
+```{r include=FALSE}
+dogs_refined_rf <- dogs %>%
+  dplyr::select(age_years, days_in_shelter, intake_type, placed, intake_condition) %>%
+  mutate_if(is.character, as.factor)
+
+library(rpart.plot)
+library(caTools)
+library(rpart)
+library(randomForest)
+
+split <- sample.split(dogs_refined_rf$placed, SplitRatio = .7)
+
+dogs_refined_train = subset(dogs_refined_rf, split == TRUE)
+dogs_refined_test = subset(dogs_refined_rf, split == FALSE)
+
+dog_model_rf <- randomForest(as.factor(placed) ~ .,
+                             data = dogs_refined_train,
+                             ntree = 1000,
+                             mtry = 4,
+                             importance = TRUE,
+                             replace = FALSE)
+
+outcome <- predict(dog_model_rf, dogs_refined_test)
+
+table(dogs_refined_test$placed, outcome, dnn=c("Actual", "Predicted"))
+```
+- 85% Model Accuracy
+```{r echo=FALSE}
+paste((((493+2152)/(493+259+224+2152)) * 100), "Percent Accurate")
+```
+
+
+## Recommendations 
+
+- 1.) Get Dogs into Shelters before they are sickly, disease ridden and dying. 
+
+ How? 
+ Offer incentives for people to bring in stray dogs. If a stray could be brought in to a shelter before they have diseaes, trust issues, and ailments then their likelihood of eventually get a home increases dramatically. 
+
+- 2.) Have a training program for dogs that have been been in the shelter for over 30 days. 
+
+Why? 
+  The longer a dog stays in a shelter the less likely they are to be adopted or returned home. If the dogs with "seniority" get training then it would incentivize people looking to adopt to look at the dogs that have been in there longer. They will know that these dogs are more well behaved and ready for "home" life. 
+  
+## Recommendations 
+  
+  -3.) Give Older dogs more exposure
+  
+What? 
+  Give older dogs the majority of exposure on social media, give them the rooms/cages, that offer more exposure. Older dogs are obviously less likely to be adopted because everyone wants a puppy, or young dog. The advantage is that dogs appeal to people's sensitive/ emotional side, if older dogs have more exposure then they are likely to "catch" a pair of eyes and find a new home. 
